@@ -2,7 +2,7 @@ pipeline {
     agent any 
     tools { 
         nodejs 'Node_24' 
-        sonarScanner 'SonarQubeScanner' // Configurado en Global Tools 
+        sonarScanner 'MySonarQube' // Configurado en Global Tools 
     } 
     environment { 
         SONAR_PROJECT_KEY = 'ucp-app-react' 
@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') { 
             steps { 
                 git branch: 'main', url: 
-'https://github.com/amartinezh/ucp-app-react.git' 
+'https://github.com/ecredit-dev/ucp-app-react.git' 
             } 
         } 
  
@@ -57,7 +57,34 @@ tenga este script
                     error "Calidad no aprobada: ${qg.status}" 
                 } 
             } 
-            // Resto de las acciones post... 
-        } 
-    } 
-}
+      // Etapa 3: Ejecutar pruebas unitarias
+       stage('Pruebas Unitarias') {
+           steps {
+               sh 'npm test -- --watchAll=false --ci --reporters=default --reporters=jest-junit' // Genera reporte JUnit
+           }
+           post {
+               always {
+                   junit 'junit.xml' // Publica reporte en Jenkins
+                   archiveArtifacts artifacts: 'junit.xml', allowEmptyArchive: true
+               }
+           }
+       }
+
+
+   }
+
+
+   // Post-actions (opcional)
+   post {
+       always {
+           emailext (
+               subject: "Pipeline ${currentBuild.result}: ucp-app-react #${env.BUILD_NUMBER}",
+               body: """
+                   Estado: ${currentBuild.result}
+                   URL Build: ${env.BUILD_URL}
+                   Detalles de Pruebas: ${env.BUILD_URL}testReport/
+               """,
+               to: 'dawian85@gmail.com' // Reemplaza con tu email
+           )
+       }
+   }
