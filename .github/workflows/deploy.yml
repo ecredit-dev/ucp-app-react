@@ -33,5 +33,5 @@ jobs:
       - name: Deploy Project to Vercel
         run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }} # Puede que no sea necesario si 'vercel pull' funcionó
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }} # Puede que no sea necesario si 'vercel pull' funcionó
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }} 
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
