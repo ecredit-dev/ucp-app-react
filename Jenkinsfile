@@ -40,7 +40,7 @@ stage('Security Scan with Snyk') {
                     sh 'snyk auth ${SNYK_TOKEN}' 
                      
                     // 3. Test de vulnerabilidades (fail-on si hay 
-vulnerabilidades altas/críticas) 
+//vulnerabilidades altas/críticas) 
                     sh 'snyk test --all-projects --severity-threshold=high' 
                      
                     // 4. Monitoreo continuo (opcional) 
