@@ -63,7 +63,7 @@ variable: 'SNYK_TOKEN')]) {
                        sh 'snyk test --all-projects --severity-threshold=high' 
                        
                        // Opcional: Monitorear en Snyk (registra resultados en 
-dashboard) 
+//dashboard) 
                        sh 'snyk monitor --all-projects' 
                    } 
                } 
