@@ -26,15 +26,14 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
-                        sh """
-                            \${SONAR_SCANNER_HOME}/bin/sonar-scanner \\
-                              -Dsonar.projectKey=\${SONAR_PROJECT_KEY} \\
-                              -Dsonar.projectName='\${SONAR_PROJECT_NAME}' \\
+                        sh '''
+                            sonar-scanner \\
+                              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \\
+                              -Dsonar.projectName='${SONAR_PROJECT_NAME}' \\
                               -Dsonar.sources=src \\
-                              -Dsonar.login=\${SONAR_AUTH_TOKEN} \\
-                              -Dsonar.javascript.node=\$(tool 'Node_24')/bin/node \\
+                              -Dsonar.login=${SONAR_AUTH_TOKEN} \\
                               -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                        """
+                        '''
                     }
 
                     def qg = waitForQualityGate()
