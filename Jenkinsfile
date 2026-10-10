@@ -1,52 +1,52 @@
 pipeline { 
-agent any 
-tools { 
-nodejs 'Node_24' 
+  agent any 
+  tools { 
+    nodejs 'Node_24' 
 } 
 environment { 
-SONAR_PROJECT_KEY = 'ucp-app-react' 
-SONAR_PROJECT_NAME = 'UCP React App' 
-SONAR_SCANNER_HOME = tool 'SonarQubeScanner' 
-SONAR_HOST_URL = 'http://sonarqube:9000' 
+    SONAR_PROJECT_KEY = 'ucp-app-react' 
+    SONAR_PROJECT_NAME = 'UCP React App' 
+    SONAR_SCANNER_HOME = tool 'SonarQubeScanner' 
+    SONAR_HOST_URL = 'http://sonarqube:9000' 
 } 
 stages { 
-stage('Checkout') { 
-steps { 
-git branch: 'main', url: 
+    stage('Checkout') { 
+        steps { 
+            git branch: 'main', url: 
 'https://github.com/ecredit-dev/ucp-app-react.git' 
-} 
+  } 
 } 
 stage('Build and Test') { 
-steps { 
-sh 'npm install' 
+        steps { 
+               sh 'npm install' 
                sh 'npm run build' 
                sh 'npm run test:coverage' 
            } 
        } 
  
-       stage('SonarQube Analysis') { 
-           steps { 
-               script { 
-                   withSonarQubeEnv('SonarQube') { 
-                       sh """ 
-                           ${SONAR_SCANNER_HOME}/bin/sonar-scanner \ 
-                           -Dsonar.projectKey=${SONAR_PROJECT_KEY} \ 
-                           -Dsonar.projectName='${SONAR_PROJECT_NAME}' \ 
-                           -Dsonar.sources=src \ 
-                           -Dsonar.login=${SONAR_AUTH_TOKEN} \ 
-                           -Dsonar.javascript.node=${tool 'Node_24'}/bin/node \ 
-                           -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info 
-                       """ 
-                   } 
+      stage('SonarQube Analysis') {
+    steps {
+        script {
+            withSonarQubeEnv('SonarQube') {
+                sh """
+                    \${SONAR_SCANNER_HOME}/bin/sonar-scanner \\
+                      -Dsonar.projectKey=\${SONAR_PROJECT_KEY} \\
+                      -Dsonar.projectName='\${SONAR_PROJECT_NAME}' \\
+                      -Dsonar.sources=src \\
+                      -Dsonar.login=\${SONAR_AUTH_TOKEN} \\
+                      -Dsonar.javascript.node=\$(tool 'Node_24')/bin/node \\
+                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                """
+            }
+
+            def qg = waitForQualityGate()
+            if (qg.status != 'OK') {
+                error "Quality Gate failed: ${qg.status}"
+            }
+        }
+    }
+}
                    
-                   // Esperar después de withSonarQubeEnv pero en el mismo stage 
-                   def qg = waitForQualityGate() 
-                   if (qg.status != 'OK') { 
-                       error "Quality Gate failed: ${qg.status}" 
-                   } 
-               } 
-           } 
-       } 
  
        stage('Security Scan with Snyk') { 
            steps { 
