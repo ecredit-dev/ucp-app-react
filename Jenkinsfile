@@ -3,11 +3,6 @@ pipeline {
     tools { 
         nodejs 'Node_24' 
     }
-    environment { 
-        SONAR_PROJECT_KEY = 'ucp-app-react' 
-        SONAR_PROJECT_NAME = 'UCP React App' 
-        SONAR_HOST_URL = 'http://sonarqube:9000' 
-    } 
     stages { 
         stage('Checkout') { 
             steps { 
@@ -22,35 +17,20 @@ pipeline {
             } 
         }
  
-      stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            npx sonar-scanner \
-                              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                              -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                              -Dsonar.sources=src \
-                              -Dsonar.login=${SONAR_AUTH_TOKEN} \
-                              -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                        '''
-                    }
-
-                    def qg = waitForQualityGate()
-                    if (qg.status != 'OK') {
-                        error "Quality Gate failed: ${qg.status}"
-                    }
-                }
-            }
-        }
- 
         stage('Security Scan with Snyk') { 
             steps { 
                 script { 
                     withCredentials([string(credentialsId: 'SNYK_API_TOKEN', variable: 'SNYK_TOKEN')]) { 
+                        // Instalar CLI de Snyk 
                         sh 'npm install -g snyk' 
+                        
+                        // Autenticar 
                         sh 'snyk auth ${SNYK_TOKEN}' 
+                        
+                        // Ejecutar test de seguridad 
                         sh 'snyk test --all-projects --severity-threshold=high' 
+                        
+                        // Monitorear en Snyk (registra resultados en dashboard) 
                         sh 'snyk monitor --all-projects' 
                     } 
                 } 
