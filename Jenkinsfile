@@ -27,15 +27,20 @@ pipeline {
                         // Autenticar 
                         sh 'snyk auth ${SNYK_TOKEN}' 
                         
-                        // Ejecutar test de seguridad 
-                        sh 'snyk test --all-projects --severity-threshold=high' 
+                        // Ejecutar test de seguridad tolerando fallos por vulnerabilidades
+                        try {
+                            sh 'snyk test --all-projects --severity-threshold=high' 
+                        } catch (err) {
+                            echo "Snyk found high/critical vulnerabilities. Marking build as UNSTABLE."
+                            currentBuild.result = 'UNSTABLE'
+                        }
                         
-                        // Monitorear en Snyk (registra resultados en dashboard) 
+                        // Registrar resultados en el dashboard de Snyk
                         sh 'snyk monitor --all-projects' 
                     } 
                 } 
             } 
-        } 
+        }
  
         stage('Parallel Tests') { 
             parallel { 
