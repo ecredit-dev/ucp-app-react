@@ -136,10 +136,10 @@ variable: 'SNYK_TOKEN')]) {
            
            // Notificación por email 
            mail( 
-               to: 'amartinezh@gmail.com', 
+               to: 'dawian85@gmail.com', 
                subject: "Build Status: ${currentBuild.currentResult}", 
                body: "Job: ${env.JOB_NAME}\nEstado: 
-${currentBuild.currentResult}\nURL: ${env.BUILD_URL}" 
+          ${currentBuild.currentResult}\nURL: ${env.BUILD_URL}" 
            ) 
            
            // Limpiar workspace (esto puede quedarse fuera del node) 
